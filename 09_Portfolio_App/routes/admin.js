@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var mysql = require('mysql');
+var multer = require('multer');
+var upload = multer({ dest: './public/img/portfolio' });
 
 var connection = mysql.createConnection({
   host: '172.17.0.2',
@@ -27,24 +29,20 @@ router.get('/new', function(req, res, next) {
 
 
 // Add New Project
-router.post('/new', function(req, res, next){
+router.post('/new',upload.single('projectimage'),function(req,res,next){
+	var title		= req.body.title;
+	var description = req.body.description;
+	var service		= req.body.service;
+	var client		= req.body.client;
+	var projectdate	= req.body.projectdate;
 
-        var title       = req.body.title;
-        var description = req.body.description;
-        var service     = req.body.service;
-        var client      = req.body.client;
-        var projectdate = req.body.projectdate;
-
-    // Check Image
-
-    if(req.files.projectimage){
-
-        var projectImageOriginalName = req.files.projectimage.originalname;
-        var projectImageName         = req.files.projectimage.name;
-        var projectImageMime         = req.files.projectimage.mimetype;
-        var projectImagePath         = req.files.projectimage.path;
-        var projectImageExt          = req.files.projectimage.extension;
-        var projectImageSize         = req.files.projectimage.size;
+	if(req.file){
+		var projectImageOriginalName	= req.file.originalname;
+		var projectImageName   			= req.file.filename;
+		var projectImageMime 			= req.file.mimetype;
+		var projectImagePath			= req.file.path;
+		var projectImageExt				= req.file.extension;
+		var projectImageSize			= req.file.size;
 
     } else {
         var projectImageName = 'noimage.jpg';
@@ -139,6 +137,7 @@ router.post('/edit/:id', function(req, res, next){
       });
     } else {
         var project= {
+          id:0,
           title: title,
           description: description,
           service: service,
